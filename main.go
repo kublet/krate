@@ -94,8 +94,15 @@ lib_deps =
 monitor_speed = 460800
 `
 
+func create(p string) (*os.File, error) {
+	if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
+		return nil, err
+	}
+	return os.Create(p)
+}
+
 func initFile(fpath, v string) {
-	f, err := os.Create(fpath)
+	f, err := create(fpath)
 	if err != nil {
 		log.Fatal(err)
 	}
