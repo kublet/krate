@@ -180,11 +180,26 @@ func initProj(args []string) {
 	if len(args) > 1 {
 		folderName = args[1]
 	} else {
-		fmt.Println("krate: please specify name of folder")
+		fmt.Println("krate: please specify name of directory")
 		os.Exit(1)
 	}
 
 	initProjFiles(folderName)
+}
+
+func installDeps() {
+	binary, lookErr := exec.LookPath("pio")
+	if lookErr != nil {
+		panic(lookErr)
+	}
+
+	args := []string{"pio", "lib", "install"}
+
+	env := os.Environ()
+	execErr := syscall.Exec(binary, args, env)
+	if execErr != nil {
+		panic(execErr)
+	}
 }
 
 func buildProj() {
@@ -220,6 +235,105 @@ func monitor() {
 	}
 }
 
+type config struct {
+	name       string
+	typ        string
+	ddData     string
+	defaultTxt string
+}
+
+func publish() {
+	var (
+		summary, desc, author, isCfg string
+		cfgs                         []*config
+	)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("Summary (max 40 chars): ")
+	scanner.Scan()
+	summary = scanner.Text()
+
+	fmt.Print("Description (max 150 chars): ")
+	scanner.Scan()
+	desc = scanner.Text()
+
+	fmt.Print("Author (max 20 chars): ")
+	scanner.Scan()
+	author = scanner.Text()
+
+	for {
+		fmt.Print("Configs (yes/no): ")
+		scanner.Scan()
+		isCfg = scanner.Text()
+		if isCfg == "yes" {
+			cfg := &config{}
+			fmt.Printf("Name (the label of the config): ")
+			scanner.Scan()
+			cfg.name = scanner.Text()
+
+			fmt.Printf("Type (freetext, dropdown_search): ")
+			scanner.Scan()
+			cfg.typ = scanner.Text()
+
+			if cfg.typ == "freetext" {
+				fmt.Printf("Default text (the placeholder text in the textbox): ")
+				scanner.Scan()
+				cfg.defaultTxt = scanner.Text()
+
+			} else if cfg.typ == "dropdown_search" {
+				fmt.Printf("Dropdown data (comma separated): ")
+				scanner.Scan()
+				cfg.ddData = scanner.Text()
+			}
+			cfgs = append(cfgs, cfg)
+			continue
+
+		} else {
+			break
+		}
+	}
+
+	f, err := os.Create("manifest.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	if _, err := w.WriteString("summary: " + summary + "\n"); err != nil {
+		log.Fatal(err)
+	}
+	if _, err := w.WriteString("desc: " + desc + "\n"); err != nil {
+		log.Fatal(err)
+	}
+	if _, err := w.WriteString("author: " + author + "\n"); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := w.WriteString("configs:\n"); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, c := range cfgs {
+		if _, err := w.WriteString("  name: " + c.name + "\n"); err != nil {
+			log.Fatal(err)
+		}
+		if _, err := w.WriteString("  type: " + c.typ + "\n"); err != nil {
+			log.Fatal(err)
+		}
+		if _, err := w.WriteString("  default_text: " + c.defaultTxt + "\n"); err != nil {
+			log.Fatal(err)
+		}
+		if _, err := w.WriteString("  dropdown: " + c.ddData + "\n"); err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	w.Flush()
+
+}
+
 func main() {
 
 	flag.Parse()
@@ -236,19 +350,39 @@ func main() {
 	case "help":
 		fmt.Println("Usage: krate [options...] <arg>")
 		fmt.Println(" help                    Shows list of commands")
-		fmt.Println(" send <firmware>         Send firmware OTA to kublet. If arg provided, file must end in .bin. Defaults to firmware.bin path in pio")
-
-	case "send":
-		sendFileOTA(args)
+		fmt.Println(" init                    Initializes project with basic libraries and code")
+		fmt.Println(" deps install            Install dependencies specified in platformio.ini file")
+		fmt.Println(" build                   Compiles project")
+		fmt.Println(" send <ip address>       Send firmware OTA to kublet by specifiying ip address")
+		fmt.Println(" monitor                 Monitors logs")
+		fmt.Println(" publish									Creates manifest file based on prompts and user inputs for publishing on Kublet community")
 
 	case "init":
 		initProj(args)
 
+	case "deps":
+		if len(args) > 1 {
+			if args[1] != "install" {
+				fmt.Println("krate: Run `krate deps install` to install dependencies")
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println("krate: Run `krate deps install` to install dependencies")
+			os.Exit(1)
+		}
+		installDeps()
+
 	case "build":
 		buildProj()
 
+	case "send":
+		sendFileOTA(args)
+
 	case "monitor":
 		monitor()
+
+	case "publish":
+		publish()
 	}
 
 }
