@@ -49,7 +49,6 @@ var mainCpp string = `
 
 OTAServer otaserver;
 KGFX ui;
-Preferences preferences;
 
 void setup() {
   Serial.begin(460800);
@@ -191,7 +190,7 @@ func initProj(args []string) {
 		os.Exit(1)
 	}
 
-	initProjFiles(folderName)
+	initProjFiles(filepath.Join("krates", folderName))
 }
 
 func installDeps() {
@@ -356,7 +355,7 @@ func main() {
 	switch action {
 	case "help":
 		fmt.Println("Usage: krate [options...] <arg>")
-		fmt.Println(" help                    Shows list of commands")
+		fmt.Println(" help                    List all available commands")
 		fmt.Println(" init                    Initializes project with basic libraries and code")
 		fmt.Println(" deps install            Install dependencies specified in platformio.ini file")
 		fmt.Println(" build                   Compiles project")
