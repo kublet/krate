@@ -190,7 +190,7 @@ func initProj(args []string) {
 		os.Exit(1)
 	}
 
-	initProjFiles(filepath.Join("krates", folderName))
+	initProjFiles(folderName)
 }
 
 func installDeps() {
