@@ -88,7 +88,7 @@ board = esp32dev
 framework = arduino
 lib_deps = 
 	bodmer/TFT_eSPI@^2.5.0
-	kublet/KGFX@^0.0.8
+	kublet/KGFX@^0.0.10
 	kublet/OTAServer@^1.0.4
 monitor_speed = 460800
 `
@@ -211,17 +211,15 @@ func installDeps() {
 func buildProj() {
 	editFiles()
 
-	binary, lookErr := exec.LookPath("pio")
-	if lookErr != nil {
-		panic(lookErr)
-	}
+	cmd := exec.Command("pio", "run")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Env = os.Environ()
 
-	args := []string{"pio", "run"}
-
-	env := os.Environ()
-	execErr := syscall.Exec(binary, args, env)
-	if execErr != nil {
-		panic(execErr)
+	err := cmd.Run()
+	if err == nil {
+		os.Exit(0)
 	}
 }
 
