@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
 )
 
 var tftSetup string = `
@@ -194,17 +193,15 @@ func initProj(args []string) {
 }
 
 func installDeps() {
-	binary, lookErr := exec.LookPath("pio")
-	if lookErr != nil {
-		panic(lookErr)
-	}
+	cmd := exec.Command("pio", "lib", "install")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Env = os.Environ()
 
-	args := []string{"pio", "lib", "install"}
-
-	env := os.Environ()
-	execErr := syscall.Exec(binary, args, env)
-	if execErr != nil {
-		panic(execErr)
+	err := cmd.Run()
+	if err == nil {
+		log.Fatal(err)
 	}
 }
 
@@ -219,23 +216,20 @@ func buildProj() {
 
 	err := cmd.Run()
 	if err == nil {
-		os.Exit(0)
+		log.Fatal(err)
 	}
 }
 
 func monitor() {
+	cmd := exec.Command("pio", "device", "monitor")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Env = os.Environ()
 
-	binary, lookErr := exec.LookPath("pio")
-	if lookErr != nil {
-		panic(lookErr)
-	}
-
-	args := []string{"pio", "device", "monitor"}
-
-	env := os.Environ()
-	execErr := syscall.Exec(binary, args, env)
-	if execErr != nil {
-		panic(execErr)
+	err := cmd.Run()
+	if err == nil {
+		log.Fatal(err)
 	}
 }
 
