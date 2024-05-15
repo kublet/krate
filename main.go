@@ -235,6 +235,7 @@ func monitor() {
 
 type config struct {
 	name       string
+	ID         string
 	typ        string
 	ddData     string
 	defaultTxt string
@@ -265,16 +266,21 @@ func publish() {
 		isCfg = scanner.Text()
 		if isCfg == "yes" {
 			cfg := &config{}
-			fmt.Printf("Name (the label of the config): ")
+
+			fmt.Printf("ID (the key stored in nvs/preferences): ")
+			scanner.Scan()
+			cfg.ID = scanner.Text()
+
+			fmt.Printf("Name (the displayed name/label of the config): ")
 			scanner.Scan()
 			cfg.name = scanner.Text()
 
-			fmt.Printf("Type (freetext, dropdown_search): ")
+			fmt.Printf("Type (text, dropdown_search): ")
 			scanner.Scan()
 			cfg.typ = scanner.Text()
 
-			if cfg.typ == "freetext" {
-				fmt.Printf("Default text (the placeholder text in the textbox): ")
+			if cfg.typ == "text" {
+				fmt.Printf("Default text (the placeholder text in the textbox). Press enter if none: ")
 				scanner.Scan()
 				cfg.defaultTxt = scanner.Text()
 
@@ -313,17 +319,24 @@ func publish() {
 	}
 
 	for _, c := range cfgs {
+		if _, err := w.WriteString("  id: " + c.ID + "\n"); err != nil {
+			log.Fatal(err)
+		}
 		if _, err := w.WriteString("  name: " + c.name + "\n"); err != nil {
 			log.Fatal(err)
 		}
 		if _, err := w.WriteString("  type: " + c.typ + "\n"); err != nil {
 			log.Fatal(err)
 		}
-		if _, err := w.WriteString("  default_text: " + c.defaultTxt + "\n"); err != nil {
-			log.Fatal(err)
+		if c.defaultTxt != "" {
+			if _, err := w.WriteString("  default_text: " + c.defaultTxt + "\n"); err != nil {
+				log.Fatal(err)
+			}
 		}
-		if _, err := w.WriteString("  dropdown: " + c.ddData + "\n"); err != nil {
-			log.Fatal(err)
+		if c.ddData != "" {
+			if _, err := w.WriteString("  dropdown: " + c.ddData + "\n"); err != nil {
+				log.Fatal(err)
+			}
 		}
 
 	}
