@@ -22,6 +22,8 @@ $ brew tap kublet/tools
 $ brew install krate 
 ```
 
+To update the `krate` binary, run `brew update && brew install kublet/tools/krate`.
+
 ### Windows/Linux
 
 Download the `krate` binary from the latest [release](https://github.com/kublet/krate/releases/latest).
