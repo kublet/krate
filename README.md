@@ -42,6 +42,8 @@ $ krate build
 
 ### Flash
 
+Run this within the project folder.
+
 ```bash
 $ krate send <ip-address>
 ```
