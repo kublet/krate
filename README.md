@@ -28,6 +28,10 @@ Download the `krate` binary from the latest [release](https://github.com/kublet/
 
 Alternatively, you can build from [source](https://github.com/kublet/krate).
 
+If you installed `krate` via brew, `krate` should be available system wide, and you can simply run the `krate` command from anywhere.
+
+If you're on windows, please make the `krate` command available system wide: see [docs](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7.4#set-environment-variables-in-the-system-control-panel).
+
 ## Usage
 
 ### Build

@@ -190,6 +190,13 @@ func initProj(args []string) {
 	}
 
 	initProjFiles(folderName)
+
+	fmt.Printf("Initialized files in %s:\n", folderName)
+	fmt.Println("    src/")
+	fmt.Println("    platformio.ini")
+	fmt.Println("")
+	fmt.Printf("cd into %s project and begin development\n", folderName)
+	fmt.Println("Happy coding!")
 }
 
 func installDeps() {
