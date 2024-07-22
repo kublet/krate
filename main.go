@@ -59,6 +59,7 @@ void setup() {
   ui.init();
   ui.clear();
   ui.drawText("hello", Arial_28, TFT_YELLOW, 0, 0);
+  Serial.println("Drew hello");
 }
 
 void loop() {
@@ -87,7 +88,7 @@ board = esp32dev
 framework = arduino
 lib_deps = 
 	bodmer/TFT_eSPI@^2.5.0
-	kublet/KGFX@^0.0.10
+	kublet/KGFX@^0.0.14
 	kublet/OTAServer@^1.0.4
 monitor_speed = 460800
 `
@@ -200,35 +201,24 @@ func initProj(args []string) {
 }
 
 func installDeps() {
-	cmd := exec.Command("pio", "lib", "install")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Env = os.Environ()
-
-	err := cmd.Run()
+	out, err := exec.Command("pio", "lib", "install").CombinedOutput()
 	if err == nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("%s", out)
 }
 
 func buildProj() {
 	editFiles()
-
-	cmd := exec.Command("pio", "run")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Env = os.Environ()
-
-	err := cmd.Run()
+	out, err := exec.Command("pio", "run").CombinedOutput()
 	if err == nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("%s", out)
 }
 
 func monitor() {
-	cmd := exec.Command("pio", "device", "monitor")
+	cmd := exec.Command("pio", "device", "monitor").CombinedOutput()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
