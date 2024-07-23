@@ -45,6 +45,9 @@ func main() {
 	case "publish":
 		pub := Publish{}
 		pub.Publish()
+	default:
+		fmt.Printf("krate: %s is not a valid command\n", action)
+		fmt.Println("krate: run `krate help` to see list of commands")
 	}
 
 }

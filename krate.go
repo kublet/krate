@@ -112,16 +112,12 @@ func (k *Krate) Initialize() error {
 	}
 	k.username = user.Username     // get the current user
 	if runtime.GOOS != "windows" { // Windows Path
-		k.path = filepath.Join("~", ".platformio", "penv", "bin")
+		k.path = filepath.Join(user.HomeDir, ".platformio", "penv", "bin")
 	} else { // Non-Windows Path
-		k.path = filepath.Join("C:", "Users", k.username, ".platformio", "penv", "Scripts")
+		k.path = filepath.Join(user.HomeDir, ".platformio", "penv", "Scripts")
 	}
 	k.cmd = "pio" // the command to run
 	k.device_address = ""
-	fmt.Printf("Username:        %s\n", k.username)
-	fmt.Printf("Device Address:  %s\n", k.device_address)
-	fmt.Printf("Path:            %s\n", k.path)
-	fmt.Printf("Command:         %s\n", filepath.Join(k.path, k.cmd))
 	return nil
 }
 
@@ -174,7 +170,7 @@ func (k *Krate) installDeps() {
 	cmd.Env = os.Environ()
 
 	err := cmd.Run()
-	if err == nil {
+	if err != nil {
 		log.Fatal(err)
 	}
 }

@@ -18,6 +18,7 @@ func TestInitFile(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	k := Krate{}
+	k.Initialize()
 	f, err := k.create("test.go")
 	as := assert.New(t)
 	as.Nil(err)
@@ -33,19 +34,25 @@ func TestEditFiles(t *testing.T) {
 	os.RemoveAll(".pio")
 }
 
-func TestBuildProj(t *testing.T) {
-	k := Krate{}
-	k.buildProj()
-	as := assert.New(t)
-	as.DirExists(".pio")
-	os.RemoveAll(".pio")
-}
-
 func TestInstallDeps(t *testing.T) {
-	k := Krate{}
-	k.installDeps()
 	as := assert.New(t)
+	k := Krate{}
+	err := k.Initialize()
+	if err != nil {
+		as.FailNow(err.Error())
+	}
+	k.initProj([]string{"init", "."})
+	k.installDeps()
+
 	as.DirExists(".pio")
+	as.DirExists(filepath.Join(".pio", "libdeps"))
+	as.DirExists(filepath.Join(".pio", "libdeps", "esp32dev"))
+	as.DirExists(filepath.Join(".pio", "libdeps", "esp32dev", "TFT_eSPI"))
+	as.FileExists(filepath.Join(".pio", "libdeps", "esp32dev", "TFT_eSPI", "User_Setup.h"))
+	as.DirExists(filepath.Join(".pio", "libdeps", "esp32dev", "OTAServer"))
+	as.DirExists(filepath.Join(".pio", "libdeps", "esp32dev", "KGFX"))
+	os.Remove("platformio.ini")
+	os.RemoveAll("src")
 	os.RemoveAll(".pio")
 }
 
