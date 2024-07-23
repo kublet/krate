@@ -190,7 +190,6 @@ func (k *Krate) initFile(fpath, v string) {
 	if _, err := w.WriteString(v); err != nil {
 		log.Fatal(err)
 	}
-
 	w.Flush()
 }
 
