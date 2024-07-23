@@ -201,7 +201,7 @@ func initProj(args []string) {
 }
 
 func installDeps() {
-	cmd := exec.Command("pio", "lib", "install")
+	cmd := exec.Command("~/.platformio/penv/bin/pio", "lib", "install")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -216,7 +216,7 @@ func installDeps() {
 func buildProj() {
 	editFiles()
 
-	cmd := exec.Command("pio", "run")
+	cmd := exec.Command("~/.platformio/penv/bin/pio", "run")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -229,7 +229,7 @@ func buildProj() {
 }
 
 func monitor() {
-	cmd := exec.Command("pio", "device", "monitor")
+	cmd := exec.Command("~/.platformio/penv/bin/pio", "device", "monitor")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
