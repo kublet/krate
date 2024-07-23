@@ -12,24 +12,25 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 )
 
-var tftSetup string = `
+const tftSetup string = `
 #define USER_SETUP_INFO "User_Setup"
-#define ST7789_DRIVER  
+#define ST7789_DRIVER
 #define TFT_RGB_ORDER TFT_BGR
 #define TFT_WIDTH  240
 #define TFT_HEIGHT 240
 #define TFT_MISO -1
 #define TFT_MOSI 23
 #define TFT_SCLK 18
-#define TFT_CS 5  
+#define TFT_CS 5
 #define TFT_DC 2
 #define TFT_RST 4
 #define TFT_BL 15
-#define LOAD_GLCD   
-#define LOAD_FONT2  
+#define LOAD_GLCD
+#define LOAD_FONT2
 #define LOAD_FONT4
 #define LOAD_FONT6
 #define LOAD_FONT7
@@ -41,7 +42,7 @@ var tftSetup string = `
 #define SPI_TOUCH_FREQUENCY 2500000
 `
 
-var mainCpp string = `
+const mainCpp string = `
 #include <Arduino.h>
 #include <otaserver.h>
 #include <kgfx.h>
@@ -71,7 +72,7 @@ void loop() {
 }
 `
 
-var pioini string = `
+const pioini string = `
 ; PlatformIO Project Configuration File
 ;
 ;   Build options: build flags, source filter
@@ -86,7 +87,7 @@ var pioini string = `
 platform = espressif32
 board = esp32dev
 framework = arduino
-lib_deps = 
+lib_deps =
 	bodmer/TFT_eSPI@^2.5.0
 	kublet/KGFX@^0.0.14
 	kublet/OTAServer@^1.0.4
@@ -121,15 +122,17 @@ func sendFileOTA(args []string) {
 		ip = args[1]
 		pip := net.ParseIP(ip)
 		if pip == nil {
-			fmt.Println("krate: invalid IP address")
-			os.Exit(1)
+			log.Fatal("krate: invalid IP address")
+			// fmt.Println("krate: invalid IP address")
+			// os.Exit(1)
 		}
 	} else {
 		ip = os.Getenv("KUBLET_IP_ADDR")
 		pip := net.ParseIP(ip)
 		if pip == nil {
-			fmt.Println("krate: invalid IP address. Set env by running export KUBLET_IP_ADDR=<IP Addr>")
-			os.Exit(1)
+			log.Fatal("krate: invalid IP address. Set env by running export KUBLET_IP_ADDR=<IP Addr>")
+			// fmt.Println("krate: invalid IP address. Set env by running export KUBLET_IP_ADDR=<IP Addr>")
+			// os.Exit(1)
 		}
 	}
 
@@ -354,7 +357,14 @@ func publish() {
 }
 
 func main() {
+user, err := user.Current()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
+	username := user.Username
+
+	fmt.Printf("Username: %s\n", username)
 	flag.Parse()
 
 	args := flag.Args()
