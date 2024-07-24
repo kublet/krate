@@ -111,9 +111,9 @@ func (k *Krate) Initialize() error {
 		return err
 	}
 	k.username = user.Username     // get the current user
-	if runtime.GOOS != "windows" { // Windows Path
+	if runtime.GOOS != "windows" { // Non-Windows Path
 		k.path = filepath.Join(user.HomeDir, ".platformio", "penv", "bin")
-	} else { // Non-Windows Path
+	} else { // Windows Path
 		k.path = filepath.Join(user.HomeDir, ".platformio", "penv", "Scripts")
 	}
 	k.cmd = "pio" // the command to run
@@ -212,13 +212,19 @@ func (k *Krate) buildProj() {
 	}
 }
 
-
+/**
+ * Create file
+ */
 func (k *Krate) create(p string) (*os.File, error) {
 	if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
 		return nil, err
 	}
 	return os.Create(p)
 }
+
+/**
+ * Send file OTA
+ */
 func (k *Krate) sendFileOTA(args []string) {
 	ip := ""
 	if len(args) > 1 {
@@ -226,16 +232,12 @@ func (k *Krate) sendFileOTA(args []string) {
 		pip := net.ParseIP(ip)
 		if pip == nil {
 			log.Fatal("krate: invalid IP address")
-			// fmt.Println("krate: invalid IP address")
-			// os.Exit(1)
 		}
 	} else {
 		ip = os.Getenv("KUBLET_IP_ADDR")
 		pip := net.ParseIP(ip)
 		if pip == nil {
 			log.Fatal("krate: invalid IP address. Set env by running export KUBLET_IP_ADDR=<IP Addr>")
-			// fmt.Println("krate: invalid IP address. Set env by running export KUBLET_IP_ADDR=<IP Addr>")
-			// os.Exit(1)
 		}
 	}
 	k.device_address = ip
